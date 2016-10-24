@@ -29,7 +29,6 @@ app.controller('loginCntrl',['$scope','$location','$http',function($scope,$locat
             data:{email:$scope.email,password:$scope.password}
           });
           request.success(function(data){
-            console.log(data);
             var response=angular.fromJson(data);
             if(response["error"])
             {
@@ -58,7 +57,7 @@ app.controller('signupCntrl',['$scope','$location','$http',function($scope,$loca
     });
 
     request.success(function(data){
-      console.log(data);
+      //console.log(data);
       var response=angular.fromJson(data);
       if(response["error"])
       {
@@ -82,5 +81,64 @@ app.controller('signupCntrl',['$scope','$location','$http',function($scope,$loca
 }]);
 app.controller('dashboardCntrl',['$scope','$location','$http',function($scope,$location,$http)
 {
-
+    $scope.getProfileData=function(){
+    var request=$http({
+    method:'GET',
+    url:URL+"profile/"+sessionStorage.userId
+  });
+      request.success(function(data){
+        console.log(data);
+        $scope.profileData=angular.fromJson(data);
+      });
+      request.error(function(data){
+        console.log(data);
+      });
+  }
+  $scope.getProfileData();
+  $scope.updateProfile = function() {
+       delete $scope.profileData["connectionRequests"];
+       delete $scope.profileData["connections"];
+       delete $scope.profileData["suggestions"];
+       var request = $http({
+           method: "PUT",
+           url: URL + "profile/" + sessionStorage.userId,
+           data: $scope.profileData
+       });
+       request.success(function(data) {
+           $scope.responseMessage = "Update successful.";
+           $("#dashboardMsgModal").modal('show');
+           $scope.getProfileData();
+       });
+       request.error(function(data) {
+           console.log(data);
+       });
+   }
+   $scope.sendConnectRequest=function (receiverId) {
+     var request=$http({
+         method: "POST",
+         url: URL + "request/send/" + sessionStorage.userId + "/" + receiverId
+     });
+     request.success(function(data) {
+       $scope.responseMessage = "Update successful.";
+       $("#dashboardMsgModal").modal('show');
+       $scope.getProfileData();
+     });
+     request.error(function(data) {
+       console.log(data);
+     });
+   }
+   $scope.acceptRequest=function(senderId){
+     var request=$http({
+       method:'POST',
+       url:URL+"request/accept/"+senderId
+     });
+     request.success(function(data){
+       $scope.responseMessage="Received a new request!";
+       $("#dashboardMsgModal").modal('show');
+       $scope.getProfileData();
+     });
+      request.error(function(data){
+        console.log(data);
+      });
+     }
 }]);
