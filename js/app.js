@@ -141,4 +141,8 @@ app.controller('dashboardCntrl',['$scope','$location','$http',function($scope,$l
         console.log(data);
       });
      }
+     $scope.logout=function(){
+       sessionStorage.clear();
+       $location.path('login');
+     }
 }]);
